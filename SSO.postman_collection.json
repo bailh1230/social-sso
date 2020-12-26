@@ -1,0 +1,90 @@
+{
+	"info": {
+		"_postman_id": "4b673091-73f2-47ba-b0e8-829a4ae11153",
+		"name": "SSO",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "check_token",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://server.smart-sso.com:8080/oauth2/check_token?access_token=AT-5d8250bca819422eae25d10b5ec3b306",
+					"protocol": "http",
+					"host": [
+						"server",
+						"smart-sso",
+						"com"
+					],
+					"port": "8080",
+					"path": [
+						"oauth2",
+						"check_token"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "AT-5d8250bca819422eae25d10b5ec3b306"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refresh_token",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://server.smart-sso.com:8080/oauth2/refresh_token?refresh_token=RT-0ff1050a0ac3491a833b777491f79e35&client_id=client1",
+					"protocol": "http",
+					"host": [
+						"server",
+						"smart-sso",
+						"com"
+					],
+					"port": "8080",
+					"path": [
+						"oauth2",
+						"refresh_token"
+					],
+					"query": [
+						{
+							"key": "refresh_token",
+							"value": "RT-0ff1050a0ac3491a833b777491f79e35"
+						},
+						{
+							"key": "client_id",
+							"value": "client1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "登录需要在浏览器执行",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://demo.smart-sso.com:8082/",
+					"protocol": "http",
+					"host": [
+						"demo",
+						"smart-sso",
+						"com"
+					],
+					"port": "8082",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
