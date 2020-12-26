@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.smart.sso.client.session.SessionAccessToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -48,6 +49,10 @@ public class IndexController {
 		// 单点退出地址
 		model.addAttribute("logoutUrl", serverUrl + SsoConstant.LOGOUT_URL + "?" + SsoConstant.REDIRECT_URI + "="
 				+ URLEncoder.encode(getLocalUrl(request), "utf-8"));
+
+		SessionAccessToken sessionAccessToken = SessionUtils.getAccessToken(request);
+		String at = sessionAccessToken.getAccessToken();
+		model.addAttribute("accessToken", at);
 		return "index";
 	}
     

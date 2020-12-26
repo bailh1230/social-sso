@@ -26,9 +26,9 @@ public class AppController {
 	@Value("${sso.server.url}")
     private String serverUrl;
     @Value("${sso.app.id}")
-    private String appId;
+    private String clientId;
     @Value("${sso.app.secret}")
-    private String appSecret;
+    private String clientSecret;
 
 	/**
 	 * 初始页
@@ -55,7 +55,7 @@ public class AppController {
 			@RequestParam(value = Oauth2Constant.USERNAME, required = true) String username,
 			@RequestParam(value = Oauth2Constant.PASSWORD, required = true) String password,
 			HttpServletRequest request) {
-		Result<RpcAccessToken> result = Oauth2Utils.getAccessToken(serverUrl, appId, appSecret, username, password);
+		Result<RpcAccessToken> result = Oauth2Utils.getAccessToken(serverUrl, clientId, clientSecret, username, password);
 		if (!result.isSuccess()) {
 			return result;
 		}

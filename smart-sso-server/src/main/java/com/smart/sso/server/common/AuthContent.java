@@ -17,6 +17,8 @@ public class AuthContent implements Serializable {
 	private ClientTypeEnum clientType;
 	private String redirectUri;
 
+	private long createTime;
+
 	public AuthContent(String tgt, ClientTypeEnum clientType, String redirectUri) {
 		this.tgt = tgt;
 		this.clientType = clientType;
@@ -45,5 +47,13 @@ public class AuthContent implements Serializable {
 
 	public void setRedirectUri(String redirectUri) {
 		this.redirectUri = redirectUri;
+	}
+
+	public long getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(long createTime) {
+		this.createTime = createTime;
 	}
 }

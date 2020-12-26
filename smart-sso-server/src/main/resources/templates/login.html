@@ -72,14 +72,14 @@
 
 											<form id="_loginForm" action="${request.contextPath}/login" method="post"
 												validate="true" vmessage="false">
-												<input type="hidden" name="redirectUri" value="${redirectUri}" />
-												<input type="hidden" name="appId" value="${appId}" />
+												<input type="hidden" name="redirect_uri" value="${redirect_uri}" />
+												<input type="hidden" name="client_id" value="${client_id}" />
 												<fieldset>
 													<label class="block clearfix form-group">
 														<span class="block input-icon input-icon-right help-validate">
 															<input id="_username" name="username" value="admin" type="text" class="form-control form-data" placeholder="登录名"
 																required="true" minlength = '4'/>
-															<i class="ace-icon fa fa-user"></i>
+															<i class="ace-icon fa fa-ssoUser"></i>
 														</span>
 													</label>
 

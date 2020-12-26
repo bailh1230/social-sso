@@ -2,12 +2,15 @@ package com.smart.sso.server.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.smart.sso.server.model.SsoApp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -47,18 +50,18 @@ public class LoginController{
 	 * 登录页
 	 * 
 	 * @param redirectUri
-	 * @param appId
+	 * @param clientId
 	 * @param request
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.GET)
 	public String login(
 			@RequestParam(value = SsoConstant.REDIRECT_URI, required = true) String redirectUri,
-			@RequestParam(value = Oauth2Constant.APP_ID, required = true) String appId,
+			@RequestParam(value = Oauth2Constant.CLIENT_ID, required = true) String clientId,
 			HttpServletRequest request) throws UnsupportedEncodingException {
 		String tgt = CookieUtils.getCookie(request, AppConstant.TGC);
 		if (StringUtils.isEmpty(tgt) || ticketGrantingTicketManager.get(tgt) == null) {
-			return goLoginPath(redirectUri, appId, request);
+			return goLoginPath(redirectUri, clientId, request);
 		}
 		return generateCodeAndRedirect(redirectUri, tgt);
 	}
@@ -67,7 +70,7 @@ public class LoginController{
 	 * 登录提交
 	 * 
 	 * @param redirectUri
-	 * @param appId
+	 * @param clientId
 	 * @param username
 	 * @param password
 	 * @param request
@@ -78,20 +81,20 @@ public class LoginController{
 	@RequestMapping(method = RequestMethod.POST)
 	public String login(
 			@RequestParam(value = SsoConstant.REDIRECT_URI, required = true) String redirectUri,
-			@RequestParam(value = Oauth2Constant.APP_ID, required = true) String appId,
-			@RequestParam String username, 
+			@RequestParam(value = Oauth2Constant.CLIENT_ID, required = true) String clientId,
+			@RequestParam String username,
 			@RequestParam String password,
-			HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
+			HttpServletRequest request, HttpServletResponse response, Model model) throws UnsupportedEncodingException {
 
-		if(!appService.exists(appId)) {
+		if(!appService.exists(clientId)) {
 			request.setAttribute("errorMessage", "非法应用");
-			return goLoginPath(redirectUri, appId, request);
+			return goLoginPath(redirectUri, clientId, request);
 		}
 		
 		Result<SsoUser> result = userService.login(username, password);
 		if (!result.isSuccess()) {
 			request.setAttribute("errorMessage", result.getMessage());
-			return goLoginPath(redirectUri, appId, request);
+			return goLoginPath(redirectUri, clientId, request);
 		}
 
 		String tgt = CookieUtils.getCookie(request, AppConstant.TGC);
@@ -101,19 +104,32 @@ public class LoginController{
 			// TGT存cookie，和Cas登录保存cookie中名称一致为：TGC
 			CookieUtils.addCookie(AppConstant.TGC, tgt, "/", request, response);
 		}
-		return generateCodeAndRedirect(redirectUri, tgt);
+		// return generateCodeAndRedirect(redirectUri, tgt);
+
+		//尝试生成授权页面
+		// String loginUrl = new StringBuilder().append(Oauth2Constant.AUTH_URL).append("?")
+		// 		.append(Oauth2Constant.CLIENT_ID).append("=").append(clientId).append("&")
+		// 		.append(SsoConstant.REDIRECT_URI).append("=")
+		// 		.append(URLEncoder.encode(redirectUri, "utf-8")).toString();
+		// return "redirect:" + loginUrl;
+		SsoApp ssoApp = appService.getApp(clientId);
+		model.addAttribute(Oauth2Constant.CLIENT_NAME, ssoApp.getClientName());
+		model.addAttribute(Oauth2Constant.CLIENT_ID, clientId);
+		// 当前服务端口号
+		model.addAttribute(SsoConstant.REDIRECT_URI, redirectUri);
+		return Oauth2Constant.AUTH;
 	}
 
 	/**
-	 * 设置request的redirectUri和appId参数，跳转到登录页
+	 * 设置request的redirectUri和clientId参数，跳转到登录页
 	 * 
 	 * @param redirectUri
 	 * @param request
 	 * @return
 	 */
-	private String goLoginPath(String redirectUri, String appId, HttpServletRequest request) {
+	private String goLoginPath(String redirectUri, String clientId, HttpServletRequest request) {
 		request.setAttribute(SsoConstant.REDIRECT_URI, redirectUri);
-		request.setAttribute(Oauth2Constant.APP_ID, appId);
+		request.setAttribute(Oauth2Constant.CLIENT_ID, clientId);
 		return AppConstant.LOGIN_PATH;
 	}
 	

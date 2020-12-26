@@ -57,8 +57,8 @@ public class LoginFilter extends ClientFilter {
 	 * @param request
 	 */
 	private void getAccessToken(String code, HttpServletRequest request) {
-		Result<RpcAccessToken> result = Oauth2Utils.getAccessToken(getServerUrl(), getAppId(),
-				getAppSecret(), code);
+		Result<RpcAccessToken> result = Oauth2Utils.getAccessToken(getServerUrl(), getClientId(),
+				getClientSecret(), code);
 		if (!result.isSuccess()) {
 			logger.error("getAccessToken has error, message:{}", result.getMessage());
 			return;
@@ -74,7 +74,7 @@ public class LoginFilter extends ClientFilter {
 	 * @return
 	 */
 	protected boolean refreshToken(String refreshToken, HttpServletRequest request) {
-		Result<RpcAccessToken> result = Oauth2Utils.refreshToken(getServerUrl(), getAppId(), refreshToken);
+		Result<RpcAccessToken> result = Oauth2Utils.refreshToken(getServerUrl(), getClientId(), refreshToken);
 		if (!result.isSuccess()) {
 			logger.error("refreshToken has error, message:{}", result.getMessage());
 			return false;
@@ -113,7 +113,7 @@ public class LoginFilter extends ClientFilter {
 		}
 		else {
 			String loginUrl = new StringBuilder().append(getServerUrl()).append(SsoConstant.LOGIN_URL).append("?")
-					.append(Oauth2Constant.APP_ID).append("=").append(getAppId()).append("&")
+					.append(Oauth2Constant.CLIENT_ID).append("=").append(getClientId()).append("&")
 					.append(SsoConstant.REDIRECT_URI).append("=")
 					.append(URLEncoder.encode(getCurrentUrl(request), "utf-8")).toString();
 			response.sendRedirect(loginUrl);

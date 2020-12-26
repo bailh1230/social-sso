@@ -18,7 +18,7 @@ public class SsoConstant {
 	/**
 	 * 服务端回调客户端地址参数名称
 	 */
-	public static final String REDIRECT_URI = "redirectUri";
+	public static final String REDIRECT_URI = "redirect_uri";
     
     /**
      * 服务端单点登出回调客户端登出参数名称

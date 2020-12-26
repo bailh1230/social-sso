@@ -8,13 +8,13 @@ public class RefreshTokenContent extends AccessTokenContent {
 
 	private String accessToken;
 	
-	private String appId;
+	private String clientId;
 
 	public RefreshTokenContent(String tgt, ClientTypeEnum clientType, String redirectUri, String accessToken,
-			String appId) {
+			String clientId) {
 		super(tgt, clientType, redirectUri);
 		this.accessToken = accessToken;
-		this.appId = appId;
+		this.clientId = clientId;
 	}
 
 	public String getAccessToken() {
@@ -25,11 +25,11 @@ public class RefreshTokenContent extends AccessTokenContent {
 		this.accessToken = accessToken;
 	}
 
-	public String getAppId() {
-		return appId;
+	public String getClientId() {
+		return clientId;
 	}
 
-	public void setAppId(String appId) {
-		this.appId = appId;
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
 	}
 }

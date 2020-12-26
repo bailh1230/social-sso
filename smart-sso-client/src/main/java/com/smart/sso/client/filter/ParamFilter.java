@@ -7,24 +7,24 @@ package com.smart.sso.client.filter;
  */
 public class ParamFilter {
 
-	private String appId;
-	private String appSecret;
+	private String clientId;
+	private String clientSecret;
 	private String serverUrl;
 	
-	public String getAppId() {
-		return appId;
+	public String getClientId() {
+		return clientId;
 	}
 
-	public void setAppId(String appId) {
-		this.appId = appId;
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
 	}
 
-	public String getAppSecret() {
-		return appSecret;
+	public String getClientSecret() {
+		return clientSecret;
 	}
 
-	public void setAppSecret(String appSecret) {
-		this.appSecret = appSecret;
+	public void setClientSecret(String clientSecret) {
+		this.clientSecret = clientSecret;
 	}
 
 	public String getServerUrl() {

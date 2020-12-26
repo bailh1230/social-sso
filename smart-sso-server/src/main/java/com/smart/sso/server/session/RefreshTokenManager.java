@@ -18,13 +18,13 @@ public interface RefreshTokenManager extends Expiration {
 	 * 
 	 * @param authContent
 	 * @param accessToken
-	 * @param appId
+	 * @param clientId
 	 * @return
 	 */
-	default String generate(AuthContent authContent, String accessToken, String appId) {
+	default String generate(AuthContent authContent, String accessToken, String clientId) {
 		String resfreshToken = "RT-" + UUID.randomUUID().toString().replaceAll("-", "");
 		create(resfreshToken, new RefreshTokenContent(authContent.getTgt(), authContent.getClientType(),
-				authContent.getRedirectUri(), accessToken, appId));
+				authContent.getRedirectUri(), accessToken, clientId));
 		return resfreshToken;
 	}
 

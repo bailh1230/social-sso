@@ -30,6 +30,7 @@ public class RedisRefreshTokenManager implements RefreshTokenManager {
 
 	@Override
 	public void create(String refreshToken, RefreshTokenContent refreshTokenContent) {
+		refreshTokenContent.setCreateTime(System.currentTimeMillis());
 		redisTemplate.opsForValue().set(refreshToken, JSON.toJSONString(refreshTokenContent), getExpiresIn(),
 				TimeUnit.SECONDS);
 	}

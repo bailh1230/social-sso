@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import com.smart.sso.server.common.AccessTokenContent;
+import com.smart.sso.server.common.RefreshTokenContent;
 import com.smart.sso.server.common.ExpirationPolicy;
 import com.smart.sso.server.enums.ClientTypeEnum;
 import com.smart.sso.server.session.AccessTokenManager;
@@ -36,14 +36,14 @@ public class LocalAccessTokenManager implements AccessTokenManager, ExpirationPo
 	private Map<String, Set<String>> tgtMap = new ConcurrentHashMap<>();
 
 	@Override
-	public void create(String accessToken, AccessTokenContent accessTokenContent) {
-		DummyAccessToken dat = new DummyAccessToken(accessTokenContent,
-				System.currentTimeMillis() + getExpiresIn() * 1000);
+	public void create(String accessToken, RefreshTokenContent refreshTokenContent) {
+		long createTime = System.currentTimeMillis();
+		refreshTokenContent.setCreateTime(createTime);
+		DummyAccessToken dat = new DummyAccessToken(refreshTokenContent, createTime + getExpiresIn() * 1000);
 		accessTokenMap.put(accessToken, dat);
-
-		tgtMap.computeIfAbsent(accessTokenContent.getTgt(), a -> new HashSet<>()).add(accessToken);
+		tgtMap.computeIfAbsent(refreshTokenContent.getTgt(), a -> new HashSet<>()).add(accessToken);
 	}
-	
+
 	@Override
 	public boolean refresh(String accessToken) {
 		DummyAccessToken dummyAt = accessTokenMap.get(accessToken);
@@ -65,11 +65,12 @@ public class LocalAccessTokenManager implements AccessTokenManager, ExpirationPo
 			if (dummyAt == null || System.currentTimeMillis() > dummyAt.expired) {
 				return;
 			}
-			AccessTokenContent accessTokenContent = dummyAt.accessTokenContent;
-			if (accessTokenContent == null || accessTokenContent.getClientType() != ClientTypeEnum.WEB) {
+			RefreshTokenContent refreshTokenContent = dummyAt.refreshTokenContent;
+			if (refreshTokenContent == null || refreshTokenContent.getClientType() != ClientTypeEnum.WEB) {
 				return;
 			}
-			sendLogoutRequest(accessTokenContent.getRedirectUri(), accessToken);
+			sendLogoutRequest(refreshTokenContent.getRedirectUri(), accessToken);
+			accessTokenMap.remove(accessToken);
 		});
 	}
 
@@ -93,13 +94,26 @@ public class LocalAccessTokenManager implements AccessTokenManager, ExpirationPo
 	}
 
 	private class DummyAccessToken {
-		private AccessTokenContent accessTokenContent;
+		private RefreshTokenContent refreshTokenContent;
 		private long expired; // 过期时间
 
-		public DummyAccessToken(AccessTokenContent accessTokenContent, long expired) {
+		public DummyAccessToken(RefreshTokenContent refreshTokenContent, long expired) {
 			super();
-			this.accessTokenContent = accessTokenContent;
+			this.refreshTokenContent = refreshTokenContent;
 			this.expired = expired;
 		}
+
+		public void setRefreshTokenContent(RefreshTokenContent refreshTokenContent) {
+			this.refreshTokenContent = refreshTokenContent;
+		}
+	}
+
+	@Override
+	public RefreshTokenContent getToken(String accessToken) {
+		DummyAccessToken dummyAt = accessTokenMap.get(accessToken);
+		if (dummyAt == null || System.currentTimeMillis() > dummyAt.expired) {
+			return null;
+		}
+		return dummyAt.refreshTokenContent;
 	}
 }

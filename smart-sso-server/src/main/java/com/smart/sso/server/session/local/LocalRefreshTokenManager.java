@@ -32,8 +32,9 @@ public class LocalRefreshTokenManager implements RefreshTokenManager, Expiration
 
 	@Override
 	public void create(String refreshToken, RefreshTokenContent refreshTokenContent) {
-		DummyRefreshToken dummyRt = new DummyRefreshToken(refreshTokenContent,
-				System.currentTimeMillis() + getExpiresIn() * 1000);
+		long createTime = System.currentTimeMillis() ;
+		refreshTokenContent.setCreateTime(createTime);
+		DummyRefreshToken dummyRt = new DummyRefreshToken(refreshTokenContent, createTime + getExpiresIn() * 1000);
 		refreshTokenMap.put(refreshToken, dummyRt);
 	}
 

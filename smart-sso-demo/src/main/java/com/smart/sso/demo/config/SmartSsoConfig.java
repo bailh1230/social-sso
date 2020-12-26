@@ -19,9 +19,9 @@ public class SmartSsoConfig {
     @Value("${sso.server.url}")
     private String serverUrl;
     @Value("${sso.app.id}")
-    private String appId;
+    private String clientId;
     @Value("${sso.app.secret}")
-    private String appSecret;
+    private String clientSecret;
     
 	/**
 	 * 单实例方式单点登出Listener
@@ -69,8 +69,8 @@ public class SmartSsoConfig {
     public FilterRegistrationBean<SmartContainer> smartContainer() {
         SmartContainer smartContainer = new SmartContainer();
         smartContainer.setServerUrl(serverUrl);
-		smartContainer.setAppId(appId);
-		smartContainer.setAppSecret(appSecret);
+		smartContainer.setClientId(clientId);
+		smartContainer.setClientSecret(clientSecret);
 
         // 忽略拦截URL,多个逗号分隔
 //		smartContainer.setExcludeUrls("/app/*");
@@ -94,8 +94,8 @@ public class SmartSsoConfig {
 //	public FilterRegistrationBean<SmartContainer> appSmartContainer() {
 //		SmartContainer smartContainer = new SmartContainer();
 //		smartContainer.setServerUrl(serverUrl);
-//		smartContainer.setAppId(appId);
-//		smartContainer.setAppSecret(appSecret);
+//		smartContainer.setClientId(clientId);
+//		smartContainer.setClientSecret(clientSecret);
 //
 //		smartContainer.setExcludeUrls("/app/login");
 //

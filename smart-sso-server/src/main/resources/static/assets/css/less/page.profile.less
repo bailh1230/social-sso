@@ -1,6 +1,6 @@
 .enable_profile() when(@enable-profile = true) {
 
-.profile-user-info {
+.profile-ssoUser-info {
 	display: table;
 	width: 98%;
 	width: ~"calc(100% - 24px)";
@@ -53,7 +53,7 @@
 }
 
 
-.profile-user-info-striped {
+.profile-ssoUser-info-striped {
 	border: 1px solid #DCEBF7;
 
 	.profile-info-name {
@@ -133,7 +133,7 @@
 		color:#777;
 	}
 
-	a.user {
+	a.ssoUser {
 		font-weight:bold;
 		color:#9585BF;
 	}
@@ -154,7 +154,7 @@
 
 
 
-.user-profile .ace-thumbnails li {
+.ssoUser-profile .ace-thumbnails li {
  border:1px solid #CCC;
  padding:3px;
  margin:6px;
@@ -169,7 +169,7 @@
 
 
 
-.user-profile .user-title-label {
+.ssoUser-profile .ssoUser-title-label {
 	&:hover {
 		text-decoration:none;
 	}
@@ -213,7 +213,7 @@
 
 
 .profile-users {
-	.user {
+	.ssoUser {
 		display:block;
 		position:static;
 		text-align:center;
@@ -318,7 +318,7 @@
 
 
 
-.user-status {
+.ssoUser-status {
 	display:inline-block;
 	width:11px; height:11px;
 	background-color:#FFF;
@@ -361,7 +361,7 @@
 	width: 80px;
  }
 
- .profile-user-info-striped {
+ .profile-ssoUser-info-striped {
 	.profile-info-name {
 		float: none;
 		width: auto;
@@ -377,7 +377,7 @@
 }
 
 @media only screen and (max-width: @screen-xs) {
- .user-profile .memberdiv {
+ .ssoUser-profile .memberdiv {
 	width: 50%;
 	margin-left: 0;
 	margin-right: 0;

@@ -26,18 +26,18 @@ public class Oauth2Utils {
 	 * 获取accessToken（密码模式，app通过此方式由客户端代理转发http请求到服务端获取accessToken）
 	 * 
 	 * @param serverUrl
-	 * @param appId
-	 * @param appSecret
+	 * @param clientId
+	 * @param clientSecret
 	 * @param username
 	 * @param password
 	 * @return
 	 */
-	public static Result<RpcAccessToken> getAccessToken(String serverUrl, String appId, String appSecret, String username,
+	public static Result<RpcAccessToken> getAccessToken(String serverUrl, String clientId, String clientSecret, String username,
 			String password) {
 		Map<String, String> paramMap = new HashMap<>();
 		paramMap.put(Oauth2Constant.GRANT_TYPE, GrantTypeEnum.PASSWORD.getValue());
-		paramMap.put(Oauth2Constant.APP_ID, appId);
-		paramMap.put(Oauth2Constant.APP_SECRET, appSecret);
+		paramMap.put(Oauth2Constant.CLIENT_ID, clientId);
+		paramMap.put(Oauth2Constant.CLIENT_SECRET, clientSecret);
 		paramMap.put(Oauth2Constant.USERNAME, username);
 		paramMap.put(Oauth2Constant.PASSWORD, password);
 		return getHttpAccessToken(serverUrl + Oauth2Constant.ACCESS_TOKEN_URL, paramMap);
@@ -47,16 +47,16 @@ public class Oauth2Utils {
 	 * 获取accessToken（授权码模式）
 	 * 
 	 * @param serverUrl
-	 * @param appId
-	 * @param appSecret
+	 * @param clientId
+	 * @param clientSecret
 	 * @param code
 	 * @return
 	 */
-	public static Result<RpcAccessToken> getAccessToken(String serverUrl, String appId, String appSecret, String code) {
+	public static Result<RpcAccessToken> getAccessToken(String serverUrl, String clientId, String clientSecret, String code) {
 		Map<String, String> paramMap = new HashMap<>();
 		paramMap.put(Oauth2Constant.GRANT_TYPE, GrantTypeEnum.AUTHORIZATION_CODE.getValue());
-		paramMap.put(Oauth2Constant.APP_ID, appId);
-		paramMap.put(Oauth2Constant.APP_SECRET, appSecret);
+		paramMap.put(Oauth2Constant.CLIENT_ID, clientId);
+		paramMap.put(Oauth2Constant.CLIENT_SECRET, clientSecret);
 		paramMap.put(Oauth2Constant.AUTH_CODE, code);
 		return getHttpAccessToken(serverUrl + Oauth2Constant.ACCESS_TOKEN_URL, paramMap);
 	}
@@ -65,13 +65,13 @@ public class Oauth2Utils {
 	 * 刷新accessToken
 	 * 
 	 * @param serverUrl
-	 * @param appId
+	 * @param clientId
 	 * @param refreshToken
 	 * @return
 	 */
-	public static Result<RpcAccessToken> refreshToken(String serverUrl, String appId, String refreshToken) {
+	public static Result<RpcAccessToken> refreshToken(String serverUrl, String clientId, String refreshToken) {
 		Map<String, String> paramMap = new HashMap<>();
-		paramMap.put(Oauth2Constant.APP_ID, appId);
+		paramMap.put(Oauth2Constant.CLIENT_ID, clientId);
 		paramMap.put(Oauth2Constant.REFRESH_TOKEN, refreshToken);
 		return getHttpAccessToken(serverUrl + Oauth2Constant.REFRESH_TOKEN_URL, paramMap);
 	}

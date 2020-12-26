@@ -3,6 +3,7 @@ package com.smart.sso.server.session.redis;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import com.smart.sso.server.common.RefreshTokenContent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,7 +14,6 @@ import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.smart.sso.server.common.AccessTokenContent;
 import com.smart.sso.server.enums.ClientTypeEnum;
 import com.smart.sso.server.session.AccessTokenManager;
 
@@ -32,11 +32,11 @@ public class RedisAccessTokenManager implements AccessTokenManager {
 	private StringRedisTemplate redisTemplate;
 
 	@Override
-	public void create(String accessToken, AccessTokenContent accessTokenContent) {
-		redisTemplate.opsForValue().set(accessToken, JSON.toJSONString(accessTokenContent), getExpiresIn(),
+	public void create(String accessToken, RefreshTokenContent refreshTokenContent) {
+		refreshTokenContent.setCreateTime(System.currentTimeMillis());
+		redisTemplate.opsForValue().set(accessToken, JSON.toJSONString(refreshTokenContent), getExpiresIn(),
 				TimeUnit.SECONDS);
-
-		redisTemplate.opsForSet().add(getKey(accessTokenContent.getTgt()), accessToken);
+		redisTemplate.opsForSet().add(getKey(refreshTokenContent.getTgt()), accessToken);
 	}
 
 	@Override
@@ -61,11 +61,12 @@ public class RedisAccessTokenManager implements AccessTokenManager {
 			if (StringUtils.isEmpty(atcStr)) {
 				return;
 			}
-			AccessTokenContent accessTokenContent = JSONObject.parseObject(atcStr, AccessTokenContent.class);
+			RefreshTokenContent accessTokenContent = JSONObject.parseObject(atcStr, RefreshTokenContent.class);
 			if (accessTokenContent == null || accessTokenContent.getClientType() != ClientTypeEnum.WEB) {
 				return;
 			}
 			sendLogoutRequest(accessTokenContent.getRedirectUri(), accessToken);
+			redisTemplate.delete(accessToken);
 		});
 	}
 	
@@ -79,5 +80,14 @@ public class RedisAccessTokenManager implements AccessTokenManager {
 	@Override
 	public int getExpiresIn() {
 		return timeout / 2;
+	}
+
+	@Override
+	public RefreshTokenContent getToken(String accessToken) {
+		String result = redisTemplate.opsForValue().get(accessToken);
+		if (result == null) {
+			return null;
+		}
+		return JSON.parseObject(result, RefreshTokenContent.class);
 	}
 }
