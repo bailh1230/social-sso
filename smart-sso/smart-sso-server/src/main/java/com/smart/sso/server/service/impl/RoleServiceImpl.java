@@ -1,55 +1,81 @@
 package com.smart.sso.server.service.impl;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Resource;
-
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
-import com.smart.mvc.model.Pagination;
-import com.smart.mvc.service.mybatis.impl.ServiceImpl;
+import com.smart.mvc.model.Condition;
+import com.smart.mvc.model.Page;
+import com.smart.mvc.service.impl.ServiceImpl;
+import com.smart.mvc.util.ConvertUtils;
 import com.smart.sso.server.dao.RoleDao;
+import com.smart.sso.server.dto.RoleDto;
+import com.smart.sso.server.enums.TrueFalseEnum;
 import com.smart.sso.server.model.Role;
 import com.smart.sso.server.service.RolePermissionService;
 import com.smart.sso.server.service.RoleService;
 import com.smart.sso.server.service.UserRoleService;
 
 @Service("roleService")
-public class RoleServiceImpl extends ServiceImpl<RoleDao, Role, Integer> implements RoleService {
-
-	@Resource
-	private UserRoleService userRoleService;
-	@Resource
-	private RolePermissionService rolePermissionService;
+public class RoleServiceImpl extends ServiceImpl<RoleDao, Role> implements RoleService {
 
 	@Autowired
-	public void setDao(RoleDao dao) {
-		this.dao = dao;
+	private UserRoleService userRoleService;
+	@Autowired
+	private RolePermissionService rolePermissionService;
+
+	@Transactional
+	@Override
+    public void enable(Boolean isEnable, List<Integer> idList) {
+        selectByIds(idList).forEach(t -> {
+            t.setIsEnable(isEnable);
+            update(t);
+        });
+    }
+
+	@Override
+	public Page<Role> selectPage(String name, Page<Role> p) {
+		return selectPage(Condition.create().like("name", name), p);
 	}
 
-	public void enable(Boolean isEnable, List<Integer> idList) {
-		verifyRows(dao.enable(isEnable, idList), idList.size(), "角色数据库更新失败");
-	}
-
-	public void save(Role t) {
-		super.save(t);
-	}
-
-	public Pagination<Role> findPaginationByName(String name, Pagination<Role> p) {
-		dao.findPaginationByName(name, null, p);
-		return p;
-	}
-
-	public List<Role> findByAll(Boolean isEnable) {
-		return dao.findPaginationByName(null, isEnable, null);
+	@Override
+	public List<Role> selectAll(Boolean isEnable) {
+		return selectList(Condition.create().eq("isEnable", isEnable));
 	}
 
 	@Transactional
-	public void deleteById(List<Integer> idList) {
+	@Override
+	public void deleteByIds(Collection<Integer> idList) {
 		userRoleService.deleteByRoleIds(idList);
 		rolePermissionService.deleteByRoleIds(idList);
-		verifyRows(dao.deleteById(idList), idList.size(), "角色数据库删除失败");
+		super.deleteByIds(idList);
 	}
+
+	@Override
+    public List<RoleDto> getRoleList(Integer userId) {
+        List<Role> list = selectAll(TrueFalseEnum.TRUE.getValue());
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        if (userId == null) {
+            return ConvertUtils.convert(list, r -> convertToDto(r, Collections.emptyList()));
+        }
+        List<Integer> roleIdList = userRoleService.findRoleIdListByUserId(userId);
+        return ConvertUtils.convert(list, r -> convertToDto(r, roleIdList));
+    }
+
+    private RoleDto convertToDto(Role r, List<Integer> roleIdList) {
+        RoleDto dto = new RoleDto();
+        BeanUtils.copyProperties(r, dto);
+        if (!CollectionUtils.isEmpty(roleIdList)) {
+            dto.setChecked(roleIdList.contains(r.getId()));
+        }
+        return dto;
+    }
 }

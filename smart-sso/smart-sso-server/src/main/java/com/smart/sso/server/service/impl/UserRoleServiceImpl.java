@@ -1,40 +1,63 @@
 package com.smart.sso.server.service.impl;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.smart.mvc.service.mybatis.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.smart.mvc.model.Condition;
+import com.smart.mvc.service.impl.ServiceImpl;
+import com.smart.mvc.util.ConvertUtils;
 import com.smart.sso.server.dao.UserRoleDao;
 import com.smart.sso.server.model.UserRole;
 import com.smart.sso.server.service.UserRoleService;
 
 @Service("userRoleService")
-public class UserRoleServiceImpl extends ServiceImpl<UserRoleDao, UserRole, Integer> implements UserRoleService {
+public class UserRoleServiceImpl extends ServiceImpl<UserRoleDao, UserRole> implements UserRoleService {
 
-	@Autowired
-	public void setDao(UserRoleDao dao) {
-		this.dao = dao;
+    @Transactional
+    @Override
+    public void allocate(Integer userId, List<Integer> roleIdList) {
+        deleteByUserIds(Arrays.asList(userId));
+        save(createUserRoleList(userId, roleIdList));
+    }
+    
+    private List<UserRole> createUserRoleList(Integer userId, List<Integer> roleIdList) {
+        List<UserRole> userRoleList = Lists.newArrayList();
+        UserRole bean;
+        for (Integer roleId : roleIdList) {
+            bean = new UserRole();
+            bean.setUserId(userId);
+            bean.setRoleId(roleId);
+            userRoleList.add(bean);
+        }
+        return userRoleList;
+    }
+	
+	@Override
+	public UserRole selectByUserRoleId(Integer userId, Integer roleId) {
+		return selectOne(Condition.create().eq("userId", userId).eq("roleId", roleId));
 	}
 	
-	@Transactional
-	public void allocate(Integer userId, List<UserRole> list) {
-		dao.deleteByUserIds(Arrays.asList(userId));
-		super.save(list);
+	@Override
+	public void deleteByRoleIds(Collection<Integer> idList) {
+		deleteByCondition(Condition.create().in("roleId", idList));
 	}
 	
-	public UserRole findByUserRoleId(Integer userId, Integer roleId) {
-		return dao.findByUserRoleId(userId, roleId);
+	@Override
+	public void deleteByUserIds(Collection<Integer> idList) {
+		deleteByCondition(Condition.create().in("userId", idList));
 	}
 	
-	public void deleteByRoleIds(List<Integer> idList) {
-		dao.deleteByRoleIds(idList);
-	}
+	@Override
+    public List<Integer> findRoleIdListByUserId(Integer userId) {
+        return ConvertUtils.convert(findByUserId(userId), pu -> pu.getRoleId());
+    }
 	
-	public void deleteByUserIds(List<Integer> idList) {
-		dao.deleteByUserIds(idList);
-	}
+	private List<UserRole> findByUserId(Integer userId) {
+        return selectList(Condition.create().eq("userId", userId));
+    }
 }

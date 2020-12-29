@@ -1,13 +1,14 @@
 package com.smart.sso.demo;
 
-import com.smart.sso.client.ClientFilter;
-import com.smart.sso.client.PermissionFilter;
-import com.smart.sso.client.SmartContainer;
-import com.smart.sso.client.SsoFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.smart.sso.client.SmartContainer;
+import com.smart.sso.client.filter.ClientFilter;
+import com.smart.sso.client.filter.PermissionFilter;
+import com.smart.sso.client.filter.SsoFilter;
 
 @Configuration
 public class FilterConfiguration {

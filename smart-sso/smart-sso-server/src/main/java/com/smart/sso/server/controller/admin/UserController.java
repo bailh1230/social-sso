@@ -3,33 +3,30 @@ package com.smart.sso.server.controller.admin;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Resource;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.smart.mvc.config.ConfigUtils;
+import com.smart.mvc.constant.ResultConstant;
+import com.smart.mvc.controller.BaseController;
 import com.smart.mvc.exception.ValidateException;
-import com.smart.mvc.model.Pagination;
+import com.smart.mvc.model.Page;
 import com.smart.mvc.model.Result;
-import com.smart.mvc.model.ResultCode;
-import com.smart.mvc.util.StringUtils;
+import com.smart.mvc.util.ConfigUtils;
 import com.smart.mvc.validator.Validator;
 import com.smart.mvc.validator.annotation.ValidateParam;
-import com.smart.sso.server.controller.common.BaseController;
 import com.smart.sso.server.model.Office;
 import com.smart.sso.server.model.User;
-import com.smart.sso.server.provider.PasswordProvider;
 import com.smart.sso.server.service.OfficeService;
 import com.smart.sso.server.service.UserService;
+import com.smart.sso.server.util.PasswordHelper;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
 
 /**
  * @author Joe
@@ -37,11 +34,12 @@ import io.swagger.annotations.ApiResponse;
 @Api(tags = "用户管理")
 @Controller
 @RequestMapping("/admin/user")
+@SuppressWarnings("rawtypes")
 public class UserController extends BaseController {
 
-	@Resource
+	@Autowired
 	private UserService userService;
-	@Resource
+	@Autowired
 	private OfficeService officeService;
 
 	@ApiOperation("初始页")
@@ -52,105 +50,109 @@ public class UserController extends BaseController {
 
 	@ApiOperation("新增/修改页")
 	@RequestMapping(value = "/edit", method = RequestMethod.GET)
-	public String edit(@ApiParam(value = "id") Integer id, Model model) {
+	public String edit(@ValidateParam(name = "id") Integer id, Model model) {
 		User user;
 		if (id == null) {
 			user = new User();
 		}
 		else {
-			user = userService.get(id);
+			user = userService.selectById(id);
 		}
 		model.addAttribute("user", user);
-		model.addAttribute("officeList", officeService.findByParams(true, null, null, "----"));
+		model.addAttribute("officeList", officeService.selectList(true, null, null, "----"));
 		return "/admin/userEdit";
 	}
 
 	@ApiOperation("列表")
+	@ResponseBody
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
-	public @ResponseBody Result list(
-			@ApiParam(value = "登录名") String account,
-			@ApiParam(value = "姓名") String name,
-			@ApiParam(value = "机构ID") Integer officeId,
-			@ApiParam(value = "开始页码", required = true) @ValidateParam({ Validator.NOT_BLANK }) Integer pageNo,
-			@ApiParam(value = "显示条数", required = true) @ValidateParam({ Validator.NOT_BLANK }) Integer pageSize) {
-		return Result.createSuccessResult()
-				.setData(userService.findPagination(account, name, officeId, new Pagination<User>(pageNo, pageSize)));
+	public Result list(
+			@ValidateParam(name = "登录名") String account,
+			@ValidateParam(name = "姓名") String name,
+			@ValidateParam(name = "机构ID") Integer officeId,
+			@ValidateParam(name = "开始页码", defaultValue = DEFAULT_PAGE_NO) Integer pageNo,
+	        @ValidateParam(name = "显示条数", defaultValue = DEFAULT_PAGE_SIZE) Integer pageSize) {
+		return Result.createSuccess(userService.selectPage(account, name, officeId, Page.create(pageNo, pageSize)));
 	}
 
 	@ApiOperation("验证登录名")
+	@ResponseBody
 	@RequestMapping(value = "/validateAccount", method = RequestMethod.POST)
-	public @ResponseBody Result validateAccount(
-			@ApiParam(value = "id") Integer id,
-			@ApiParam(value = "登录名", required = true) @ValidateParam({ Validator.NOT_BLANK }) String account) {
-		Result result = Result.createSuccessResult();
-		User user = userService.findByAccount(account);
+	public Result validateAccount(
+	        @ValidateParam(name = "id") Integer id,
+			@ValidateParam(name = "登录名", value = { Validator.NOT_BLANK }) String account) {
+		User user = userService.selectByAccount(account);
 		if (null != user && !user.getId().equals(id)) {
-			result.setCode(ResultCode.ERROR).setMessage("登录名已存在");
+		    return Result.create(ResultConstant.ERROR, "登录名已存在");
 		}
-		return result;
+		return Result.success();
 	}
 
 	@ApiOperation("启用/禁用")
+	@ResponseBody
 	@RequestMapping(value = "/enable", method = RequestMethod.POST)
-	public @ResponseBody Result enable(
-			@ApiParam(value = "ids", required = true) @ValidateParam({ Validator.NOT_BLANK }) String ids,
-			@ApiParam(value = "是否启用", required = true) @ValidateParam({ Validator.NOT_BLANK }) Boolean isEnable) {
-		userService.enable(isEnable, getAjaxIds(ids));
-		return Result.createSuccessResult();
+	public Result enable(
+	    @ValidateParam(name = "ids", value = { Validator.NOT_BLANK }) String ids,
+			@ValidateParam(name = "是否启用", value = { Validator.NOT_BLANK }) Boolean isEnable) {
+		userService.enable(isEnable, convertToIdList(ids));
+		return Result.success();
 	}
 
 	@ApiOperation("新增/修改提交")
-	@ApiResponse(response = Result.class, code = 200, message = "success")
+	@ResponseBody
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	public @ResponseBody Result save(
-			@ApiParam(value = "id") Integer id,
-			@ApiParam(value = "机构ID", required = true) @ValidateParam({ Validator.NOT_BLANK }) Integer officeId,
-			@ApiParam(value = "姓名") String name,
-			@ApiParam(value = "登录名", required = true) @ValidateParam({ Validator.NOT_BLANK }) String account,
-			@ApiParam(value = "密码 ") String password,
-			@ApiParam(value = "是否启用", required = true) @ValidateParam({ Validator.NOT_BLANK }) Boolean isEnable) {
+	public Result save(
+	        @ValidateParam(name = "id") Integer id,
+			@ValidateParam(name = "机构ID", value = { Validator.NOT_BLANK }) Integer officeId,
+			@ValidateParam(name = "姓名") String name,
+			@ValidateParam(name = "登录名", value = { Validator.NOT_BLANK }) String account,
+			@ValidateParam(name = "密码 ") String password,
+			@ValidateParam(name = "是否启用", value = { Validator.NOT_BLANK }) Boolean isEnable) {
 		User user;
 		if (id == null) {
-			if (StringUtils.isBlank(password)) {
+			if (StringUtils.isEmpty(password)) {
 				throw new ValidateException("密码不能为空");
 			}
 			user = new User();
 			user.setCreateTime(new Date());
 		}
 		else {
-			user = userService.get(id);
+			user = userService.selectById(id);
 		}
 		user.setOfficeId(officeId);
 		user.setName(name);
 		user.setAccount(account);
-		if (StringUtils.isNotBlank(password)) {
-			user.setPassword(PasswordProvider.encrypt(password));
+		if (!StringUtils.isEmpty(password)) {
+			user.setPassword(PasswordHelper.encrypt(password));
 		}
 		user.setIsEnable(isEnable);
 		userService.save(user);
-		return Result.createSuccessResult();
+		return Result.success();
 	}
 
 	@ApiOperation("重置密码")
+	@ResponseBody
 	@RequestMapping(value = "/resetPassword", method = RequestMethod.POST)
-	public @ResponseBody Result resetPassword(
-			@ApiParam(value = "ids", required = true) @ValidateParam({ Validator.NOT_BLANK }) String ids) {
-		userService.resetPassword(PasswordProvider.encrypt(ConfigUtils.getProperty("system.reset.password")), getAjaxIds(ids));
-		return Result.createSuccessResult();
+	public Result resetPassword(
+	    @ValidateParam(name = "ids", value = { Validator.NOT_BLANK }) String ids) {
+		userService.resetPassword(PasswordHelper.encrypt(ConfigUtils.getProperty("system.reset.password")), convertToIdList(ids));
+		return Result.success();
 	}
 
 	@ApiOperation("删除")
+	@ResponseBody
 	@RequestMapping(value = "/delete", method = RequestMethod.POST)
-	public @ResponseBody Result delete(
-			@ApiParam(value = "ids", required = true) @ValidateParam({ Validator.NOT_BLANK }) String ids) {
-		userService.deleteById(getAjaxIds(ids));
-		return Result.createSuccessResult();
+	public Result delete(
+	    @ValidateParam(name = "ids", value = { Validator.NOT_BLANK }) String ids) {
+		userService.deleteByIds(convertToIdList(ids));
+		return Result.success();
 	}
 	
 	@ApiOperation("机构树")
+	@ResponseBody
 	@RequestMapping(value = "/office/tree", method = RequestMethod.GET)
-	public @ResponseBody List<Office> officeTree() {
-		List<Office> list = officeService.findByParams(true, null, null, "");
+	public List<Office> officeTree() {
+		List<Office> list = officeService.selectList(true, null, null, "");
 		Office office = new Office();
 		office.setId(null);
 		office.setParentId(-1);

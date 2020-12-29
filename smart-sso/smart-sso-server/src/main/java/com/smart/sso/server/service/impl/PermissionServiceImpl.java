@@ -1,77 +1,71 @@
 package com.smart.sso.server.service.impl;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Resource;
-
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
-import com.smart.mvc.service.mybatis.impl.ServiceImpl;
-import com.smart.sso.rpc.RpcPermission;
+import com.google.common.collect.Lists;
+import com.smart.mvc.model.Condition;
+import com.smart.mvc.service.impl.ServiceImpl;
+import com.smart.mvc.util.ConvertUtils;
+import com.smart.sso.client.model.RpcPermission;
 import com.smart.sso.server.dao.PermissionDao;
+import com.smart.sso.server.dto.PermissionDto;
 import com.smart.sso.server.model.Permission;
-import com.smart.sso.server.model.RolePermission;
-import com.smart.sso.server.service.AppService;
-import com.smart.sso.server.service.PermissionJmsService;
 import com.smart.sso.server.service.PermissionService;
 import com.smart.sso.server.service.RolePermissionService;
 
 @Service("permissionService")
-public class PermissionServiceImpl extends ServiceImpl<PermissionDao, Permission, Integer> implements PermissionService {
-
-	@Resource
-	private RolePermissionService rolePermissionService;
-	@Resource
-	private PermissionService permissionService;
-	@Resource
-	private AppService appService;
-	@Resource
-	private PermissionJmsService permissionJmsService;
+public class PermissionServiceImpl extends ServiceImpl<PermissionDao, Permission> implements PermissionService {
 
 	@Autowired
-	public void setDao(PermissionDao dao) {
-		this.dao = dao;
-	}
+	private RolePermissionService rolePermissionService;
 
-	public void save(Permission t) {
-		super.save(t);
-		// JMS通知权限变更
-		permissionJmsService.send(appService.get(t.getAppId()).getCode());
+	@Override
+	public List<Permission> selectList(Integer appId, Integer roleId, Boolean isEnable) {
+        List<Permission> permissionList = findByAppId(appId, isEnable);
+        if (roleId == null) {
+            return ConvertUtils.convert(permissionList, r -> convertToDto(r, Collections.emptyList()));
+        }
+        List<Integer> permissionIdList = rolePermissionService.findPermissionIdListByRoleId(roleId);
+        return ConvertUtils.convert(permissionList, r -> convertToDto(r, permissionIdList));
 	}
+	
+    private List<Permission> findByAppId(Integer appId, Boolean isEnable) {
+        return selectList(Condition.create().eq(appId != null, "appId", appId)
+                .eq(isEnable != null, "isEnable", isEnable).orderBy("sort asc, id asc"));
+    }
+	
+	private PermissionDto convertToDto(Permission r, List<Integer> permissionIdList) {
+        PermissionDto dto = new PermissionDto();
+        BeanUtils.copyProperties(r, dto);
+        if (CollectionUtils.isEmpty(permissionIdList)) {
+            dto.setChecked(false);
+        }
+        else {
+            dto.setChecked(permissionIdList.contains(r.getId()));
+        }
+        return dto;
+    }
 
-	public List<Permission> findByAppId(Integer appId, Integer roleId, Boolean isEnable) {
-		List<Permission> permissionList = dao.findByAppId(appId, isEnable);
-		if (roleId != null) {
-			List<RolePermission> rolePermissionList = rolePermissionService.findByRoleId(roleId);
-			for (Permission permission : permissionList) {
-				for (RolePermission rp : rolePermissionList) {
-					if (permission.getId().equals(rp.getPermissionId())) {
-						permission.setChecked(true);
-						break;
-					}
-				}
-			}
-		}
-		return permissionList;
-	}
-
+	@Override
 	@Transactional
-	public void deletePermission(Integer id, Integer appId) {
-		List<Integer> idList = new ArrayList<Integer>();
+	public void delete(Integer id, Integer appId) {
+		List<Integer> idList = Lists.newArrayList();
 
-		List<Permission> list = permissionService.findByAppId(appId, null, null);
+		List<Permission> list = selectList(appId, null, null);
 		loopSubList(id, idList, list);
 		idList.add(id);
 
 		rolePermissionService.deleteByPermissionIds(idList);
 
-		verifyRows(dao.deleteById(idList), idList.size(), "权限数据库删除失败");
-		
-		// JMS通知权限变更
-		permissionJmsService.send(appService.get(appId).getCode());
+		deleteByIds(idList);
 	}
 
 	// 递归方法，删除子权限
@@ -84,11 +78,13 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionDao, Permission
 		}
 	}
 
-	public void deleteByAppIds(List<Integer> idList) {
-		dao.deleteByAppIds(idList);
+	@Override
+	public void deleteByAppIds(Collection<Integer> idList) {
+		deleteByCondition(Condition.create().in("appId", idList));
 	}
 
-	public List<RpcPermission> findListById(String appCode, Integer userId) {
-		return dao.findListById(appCode, userId);
+	@Override
+	public List<RpcPermission> selectListByUserId(String appCode, Integer userId) {
+		return dao.selectListByUserId(appCode, userId);
 	}
 }

@@ -7,12 +7,11 @@
 QQ交流群：454343484🈵、769134727（提供开发工具下载）
 
 ## 简述
-    Smart定位用当下最流行的SSM（SpringMVC + Spring + Mybatis）技术，为您构建一个易理解、高可用、高扩展性的单点登录权限管理应用基层，方便实现快速开发。权限按钮级（可控制到Controller中方法）、修改实时生效（MQ广播实现）、支持分布式（Spring + Redis提供分布式Session）。
+    Smart定位用当下最流行的SSM（SpringMVC + Spring + Mybatis）技术，为您构建一个易理解、高可用、高扩展性的单点登录权限管理应用基层，方便实现快速开发。权限按钮级（可控制到Controller中方法）、支持分布式（Spring + Redis提供分布式Session）。
  
 ## 部署文档
 - [Java单点登录权限系统（一）—简介](https://blog.csdn.net/a466350665/article/details/54140411)
 - [Java单点登录权限系统（二）—部署文档](http://blog.csdn.net/a466350665/article/details/79628553)
-- [Java单点登录权限系统（三）—Dubbo配置](https://blog.csdn.net/a466350665/article/details/80612538)
 
 ## 组织结构
 
@@ -29,19 +28,14 @@ smart
 ## 技术选型
 
 ### 后端
-- JDK：1.8（支持1.6+）
+- JDK：1.8+
 - 数据库：Mysql
 - 项目构建工具：Maven 3.3.3
 - API文档：Springfox-Swagger2 2.6.1
 - MVC框架：SpringMVC 4.2.1.RELEASE
 - 核心框架：Spring 4.2.1.RELEASE
-- ORM框架：MyBatis 3.3.0
-- 分布式协调服务：Zookeeper 3.4.7
-- 分布式RPC服务：Dubbo 2.5.3（默认Hessian 4.0.38）
-- 分布式缓存服务：Redis 2.8.12
-- 分布式消息服务：ActiveMQ 5.13.3
-- NIO框架：Netty 4.0.23.Final
-- JSON工具：Fastjson 1.2.29
+- ORM框架：MyBatis 3.5.1
+- JSON工具：Fastjson 1.2.69
 - 数据库连接池：Druid 1.0.15
 - 日志管理：SLF4J 1.7.21、Logback 1.1.7
 - 单点登录：极简基于Cookie实现
@@ -123,4 +117,4 @@ smart
 ![](http://img.blog.csdn.net/20170106172926694?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvYTQ2NjM1MDY2NQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 
 ## 作者寄语
-艺术地做好一件擅长的事情
+艺术地做好一件擅长的事

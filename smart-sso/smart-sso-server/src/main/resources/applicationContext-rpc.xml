@@ -6,14 +6,14 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans
 	       http://www.springframework.org/schema/beans/spring-beans.xsd
 	       http://www.springframework.org/schema/mvc
-	       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+    	   http://www.springframework.org/schema/mvc/spring-mvc.xsd
 	       http://www.springframework.org/schema/context
-	       http://www.springframework.org/schema/context/spring-context.xsd">
+		   http://www.springframework.org/schema/context/spring-context.xsd">
 	
-	<!-- 单点登录权限RPC服务 -->
+	<!-- 登录校验鉴权RPC服务 -->
 	<bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
 	<bean name="/authenticationRpcService" class="org.springframework.remoting.caucho.HessianServiceExporter">
 		<property name="service" ref="authenticationRpcService" />
-		<property name="serviceInterface" value="com.smart.sso.rpc.AuthenticationRpcService" />
+		<property name="serviceInterface" value="com.smart.sso.client.rpc.AuthenticationRpcService" />
 	</bean>
 </beans>

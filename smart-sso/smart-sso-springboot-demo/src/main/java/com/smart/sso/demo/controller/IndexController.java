@@ -7,9 +7,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.smart.sso.client.SessionPermission;
-import com.smart.sso.client.SessionUser;
-import com.smart.sso.client.SessionUtils;
+import com.smart.sso.client.model.SessionPermission;
+import com.smart.sso.client.model.SessionUser;
+import com.smart.sso.client.util.SessionUtils;
 
 @Controller
 public class IndexController {
