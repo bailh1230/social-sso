@@ -1,4 +1,4 @@
-# Smart
+# smart-sso
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/a466350665/smart/pulls)
 [![GitHub stars](https://img.shields.io/github/stars/a466350665/smart.svg?style=social&label=Stars)](https://github.com/a466350665/smart)
@@ -7,44 +7,37 @@
 QQ交流群：454343484🈵、769134727（提供开发工具下载）
 
 ## 简述
-    Smart定位用当下最流行的SSM（SpringMVC + Spring + Mybatis）技术，为您构建一个易理解、高可用、高扩展性的单点登录权限管理应用基层，方便实现快速开发。权限按钮级（可控制到Controller中方法）、修改实时生效（MQ广播实现）、支持分布式（Spring + Redis提供分布式Session）。
+    smart-sso使用当下最流行的SpringBoot + Mybatis技术，参考并简化Cas单点登录协议，为您构建一个易理解、高可用、高扩展性的单点登录权限管理应用基层。
  
 ## 部署文档
 - [Java单点登录权限系统（一）—简介](https://blog.csdn.net/a466350665/article/details/54140411)
 - [Java单点登录权限系统（二）—部署文档](http://blog.csdn.net/a466350665/article/details/79628553)
-- [Java单点登录权限系统（三）—Dubbo配置](https://blog.csdn.net/a466350665/article/details/80612538)
 
 ## 组织结构
 
 ``` lua
-smart
-├── smart-mvc -- 公共核心模块（SpringMVC + Spring + Mybatis）
-├── smart-sso -- 单点登录权限系统
-├───── smart-sso-client -- 客户端依赖包，提供登录认证、授权管理
-├───── smart-sso-demo -- 客户端
-├───── smart-sso-springboot-demo -- SpringBoot客户端
-├───── smart-sso-server -- 服务端
+smart-mvc --公共核心模块(https://github.com/a466350665/smart-mvc)
+smart-sso
+├── smart-sso-client -- 客户端依赖包，提供登录认证、授权管理
+├── smart-sso-demo -- 客户端
+├── smart-sso-server -- 服务端
 ```
 
 ## 技术选型
 
 ### 后端
-- JDK：1.8（支持1.6+）
+- JDK：1.8+
 - 数据库：Mysql
 - 项目构建工具：Maven 3.3.3
 - API文档：Springfox-Swagger2 2.6.1
-- MVC框架：SpringMVC 4.2.1.RELEASE
-- 核心框架：Spring 4.2.1.RELEASE
-- ORM框架：MyBatis 3.3.0
-- 分布式协调服务：Zookeeper 3.4.7
-- 分布式RPC服务：Dubbo 2.5.3（默认Hessian 4.0.38）
-- 分布式缓存服务：Redis 2.8.12
-- 分布式消息服务：ActiveMQ 5.13.3
-- NIO框架：Netty 4.0.23.Final
-- JSON工具：Fastjson 1.2.29
+- MVC框架：SpringBoot 2.1.0.RELEASE
+- 核心框架：Spring 5.1.2.RELEASE
+- ORM框架：MyBatis 3.5.1
+- RPC框架：hessian 4.0.38
+- JSON工具：Fastjson 1.2.69
 - 数据库连接池：Druid 1.0.15
-- 日志管理：SLF4J 1.7.21、Logback 1.1.7
-- 单点登录：极简基于Cookie实现
+- 日志管理：SLF4J 1.7.21
+- 单点登录：极简参考Cas单点登录协议实现
 
 ### 前端
 - 基础代码库：Jquery 2.1.1
@@ -69,7 +62,7 @@ smart
 
 ### 配置层面
 - Cas：在web.xml中指定的TicketValidationFilter、AuthenticationFilter及SingleSignOutFilter存在重复的serverName参数，serverName的修改，需要分别修改三处。<br>
-- Smart：将serverName定义在properties文件中，通过Spring的<context:property-placeholder />标签注入，简化配置。(毕竟当今大部分Java项目都会用到Spring框架)
+- Smart：将serverName定义在properties文件中，通过Spring注入，简化配置。(毕竟当今大部分Java项目都会用到Spring框架)
 
 ### 耦合度
 - Shiro：大家更多是熟悉通过annotation或者配置文件的方式去控制权限，有相对较低的耦合。<br>
@@ -123,4 +116,4 @@ smart
 ![](http://img.blog.csdn.net/20170106172926694?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvYTQ2NjM1MDY2NQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 
 ## 作者寄语
-艺术地做好一件擅长的事情
+艺术地做好一件擅长的事

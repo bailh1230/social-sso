@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.smart</groupId>
+		<artifactId>smart-sso</artifactId>
+		<version>2.0.0</version>
+	</parent>
+	<artifactId>smart-sso-server</artifactId>
+	<packaging>war</packaging>
+	<name>${project.artifactId}</name>
+	
+	<properties>
+		<server.port>8080</server.port>
+	</properties>
+	
+	<dependencies>
+		<!-- 基础项目支持 -->
+		<dependency>
+			<groupId>com.smart</groupId>
+			<artifactId>smart-mvc</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<!-- sso单点登录客户端 -->
+		<dependency>
+			<groupId>com.smart</groupId>
+			<artifactId>smart-sso-client</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		
+		<!-- Json处理 -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+		</dependency>
+		
+		<!-- Guava -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
+		
+		<!-- 阿里巴巴数据连接池 -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+		</dependency>
+		
+		<!-- Swagger API文档 -->
+		<dependency>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-annotations</artifactId>
+		</dependency>
+		
+		<!-- mysql驱动包 -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		
+		<!-- httpclient -->
+		<dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+        
+        <dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-freemarker</artifactId>
+		</dependency>
+	</dependencies>
+	
+	<build>
+	    <plugins>
+	        <plugin>
+	            <groupId>org.springframework.boot</groupId>
+	            <artifactId>spring-boot-maven-plugin</artifactId>
+	        </plugin>
+	    </plugins>
+	    <resources>
+	        <resource>
+	            <directory>src/main/resources</directory>
+	            <filtering>true</filtering>
+	            <excludes>
+	                <exclude>**/*.ttf</exclude>
+	                <exclude>**/*.woff</exclude>
+	            </excludes>
+	        </resource>
+	        <resource>
+	            <directory>src/main/resources</directory>
+	            <filtering>false</filtering>
+	            <includes>
+	                <include>**/*.ttf</include>
+	                <include>**/*.woff</include>
+	            </includes>
+	        </resource>
+	    </resources>
+	</build>
+</project>
